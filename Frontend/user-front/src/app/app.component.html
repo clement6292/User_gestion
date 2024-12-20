@@ -1,5 +1,5 @@
-<!-- Barre de navigation -->
-
+<!-- Navigation -->
+<nav *ngIf="isUserAuthenticated() && !isLoginOrRegisterPage()" class="bg-white shadow-md">
   <div class="max-w-4xl mx-auto p-4">
     <ul class="flex items-center space-x-4">
       <li>
@@ -11,7 +11,7 @@
       </li>
     </ul>
   </div>
+</nav>
 
-
-<!-- Le contenu des routes -->
+<!-- Outlet pour le routage -->
 <router-outlet></router-outlet>

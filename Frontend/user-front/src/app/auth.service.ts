@@ -10,6 +10,7 @@ import { User } from './user.model'; // Assurez-vous que ce fichier existe
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8000/api';
+  private  isAuthenticated = false;
 
   constructor(private http: HttpClient, ) {}
 
@@ -17,8 +18,8 @@ export class AuthService {
   login(email: string, password: string): Observable<any> {
     return this.http.post<{ token: string }>(`${this.apiUrl}/login`, { email, password })
       .pipe(
-        tap(response => this.storeToken(response.token)), 
-        catchError(this.handleError) 
+        tap(() => this.isAuthenticated = true), // Mettez à jour l'état d'authentification
+        catchError(this.handleError)
       );
   }
 
@@ -67,6 +68,11 @@ export class AuthService {
   // Déconnexion de l'utilisateur
   logout(): void {
     localStorage.removeItem('token');
+    this.isAuthenticated = false;
+  }
+
+  isUserAuthenticated(): boolean {
+    return this.isAuthenticated;
   }
 
   // Récupère le token
@@ -102,4 +108,7 @@ export class AuthService {
     return this.http.delete(`${this.apiUrl}/delete_user/${userId}`)
       .pipe(catchError(this.handleError));
   }
+
+  
+ 
 }
