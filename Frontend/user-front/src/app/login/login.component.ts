@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -12,7 +13,7 @@ export class LoginComponent {
   loginError: string = '';
   submitted: boolean = false;
 
-  constructor(private formBuilder: FormBuilder, private authService: AuthService) {
+  constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) {
     // Initialisation du formulaire avec validation
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -40,11 +41,13 @@ export class LoginComponent {
     // Appel au service d'authentification
     this.authService.login(email, password).subscribe({
       next: (response) => {
-        localStorage.setItem('token', response.token);
-        // Vous pouvez rediriger l'utilisateur ou afficher un message de succès ici
+        // Stocker le token dans le service
+        this.authService.storeToken(response.token); 
+        // Rediriger vers le tableau de bord après connexion
+        this.router.navigate(['/user']);
       },
       error: (err) => {
-        this.loginError = 'Erreur de connexion : ' + err.error.message;
+        this.loginError = 'Erreur de connexion : ' + (err.error.message || 'Erreur inconnue');
         console.error('Erreur de connexion', err);
       }
     });

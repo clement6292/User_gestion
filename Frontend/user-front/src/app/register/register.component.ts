@@ -6,51 +6,50 @@ import { AuthService } from '../auth.service';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css'] // Correction ici : 'styleUrls' au lieu de 'styleUrl'
+  styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit {
-  registerForm: FormGroup;
+  registerForm: FormGroup; // Déclaration
   submitted = false;
 
   constructor(private formBuilder: FormBuilder, private authService: AuthService) {
-    // Initialisation du formulaire dans le constructeur
+    // Initialisation ici
     this.registerForm = this.formBuilder.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-    });
+      confirmPassword: ['', Validators.required],
+    }, { validators: this.passwordMatchValidator }); // Validation personnalisée ici
   }
 
   ngOnInit() {
-    // Si vous avez besoin d'effectuer des tâches d'initialisation, faites-le ici.
+    // Aucune action nécessaire ici pour l'instant
   }
 
-  // Getter pour simplifier l'accès aux contrôles de formulaire
+  passwordMatchValidator(form: FormGroup) {
+    return form.get('password')?.value === form.get('confirmPassword')?.value
+      ? null : { passwordMismatch: true };
+  }
+
   get f() {
     return this.registerForm.controls;
   }
 
-  // Méthode de soumission du formulaire
   onSubmit() {
     this.submitted = true;
 
-    // Si le formulaire est invalide, on sort de la méthode
     if (this.registerForm.invalid) {
       return;
     }
 
-    // Récupération des valeurs du formulaire
     const user: User = this.registerForm.value;
 
-    // Appel au service d'authentification pour l'inscription de l'utilisateur
     this.authService.register(user.name, user.email, user.password).subscribe({
       next: (response) => {
         console.log('Inscription réussie !', response);
-        // Vous pouvez rediriger ou afficher un message de succès ici
       },
       error: (err) => {
         console.error('Erreur lors de l\'inscription', err);
-        // Vous pouvez gérer l'affichage d'une erreur ici
       },
     });
   }

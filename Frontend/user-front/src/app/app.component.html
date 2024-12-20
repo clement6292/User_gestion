@@ -1,2 +1,12 @@
-<app-register></app-register>
-<app-login></app-login>
+<!-- Barre de navigation -->
+<nav *ngIf="!isLoginOrRegisterPage()">
+  <ul>
+    <li><a routerLink="/user">Tableau de bord Utilisateur</a></li>
+    <li><a routerLink="/admin">Tableau de bord Administrateur</a></li>
+    <li><a routerLink="/super-admin">Tableau de bord Super Administrateur</a></li>
+    <li><button (click)="logout()">Logout</button></li>
+  </ul>
+</nav>
+
+<!-- Le contenu des routes -->
+<router-outlet></router-outlet>

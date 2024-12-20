@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -14,20 +15,34 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+
+
+  
+
     public function login(Request $request)
     {
+        // Validation des données d'entrée
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
-        if (Auth::attempt($request->only('email', 'password'))) {
-            $user = Auth::user();
+    
+        // Récupération de l'utilisateur
+        $user = User::where('email', $request->email)->first();
+    
+        // Vérification des informations d'identification
+        if ($user && Auth::attempt($request->only('email', 'password'))) {
+            // Authentification réussie, création du token
             $token = $user->createToken('YourAppName')->plainTextToken;
-
-            return response()->json(['token' => $token, 'role' => $user->role]);
+    
+            // Retourner le token et le rôle
+            return response()->json([
+                'token' => $token,
+                'role' => $user->role,
+            ]);
         }
-
+    
+        // Authentification échouée
         return response()->json(['error' => 'Unauthorized'], 401);
     }
 
@@ -37,26 +52,29 @@ class AuthController extends Controller
     }
 
     public function register(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
-        ]);
+{
+    Log::info("un test ici", ['email' => $request->email]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'user', // Par défaut
-        ]);
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:6',
+    ]);
 
-        return response()->json($user, 201);
-    }
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => 'user', // Par défaut
+    ]);
 
-    public function logout(Request $request)
-    {
-        Auth::logout();
-        return response()->json(['message' => 'Logged out successfully']);
-    }
+    return response()->json($user, 201);
+}
+public function logout(Request $request)
+{
+    $request->user()->currentAccessToken()->delete();
+
+    return response()->json(['message' => 'Logged out successfully']);
+}
+
 }
