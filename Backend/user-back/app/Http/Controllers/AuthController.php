@@ -10,14 +10,10 @@ use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
-    public function showLoginForm()
-    {
-        return view('auth.login');
-    }
-
-
-
-  
+    // public function showLoginForm()
+    // {
+    //     return view('auth.login');
+    // }
 
     public function login(Request $request)
     {
@@ -26,6 +22,9 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
+        // $monUser=Auth::user();
+      
+
     
         // Récupération de l'utilisateur
         $user = User::where('email', $request->email)->first();
@@ -33,12 +32,12 @@ class AuthController extends Controller
         // Vérification des informations d'identification
         if ($user && Auth::attempt($request->only('email', 'password'))) {
             // Authentification réussie, création du token
-            $token = $user->createToken('YourAppName')->plainTextToken;
+            $token = $user->createToken('Laravel')->plainTextToken;
     
             // Retourner le token et le rôle
             return response()->json([
                 'token' => $token,
-                'role' => $user->role,
+                'user' => $user,
             ]);
         }
     
@@ -52,29 +51,38 @@ class AuthController extends Controller
     }
 
     public function register(Request $request)
-{
-    Log::info("un test ici", ['email' => $request->email]);
+    {
+        Log::info("un test ici", ['email' => $request->email]);
 
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:6',
-    ]);
+        // Validation des données d'inscription
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+        ]);
 
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => 'user', // Par défaut
-    ]);
+        // Création de l'utilisateur
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'user', // Par défaut
+        ]);
 
-    return response()->json($user, 201);
-}
-public function logout(Request $request)
-{
-    $request->user()->currentAccessToken()->delete();
+        // Création du token après l'inscription
+        $token = $user->createToken('YourAppName')->plainTextToken;
 
-    return response()->json(['message' => 'Logged out successfully']);
-}
+        // Retourner le token et le rôle
+        return response()->json([
+            'token' => $token,
+            'role' => $user->role,
+        ], 201);
+    }
 
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Logged out successfully']);
+    }
 }

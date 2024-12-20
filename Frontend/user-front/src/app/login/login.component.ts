@@ -6,14 +6,18 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'] // Assurez-vous que c'est 'styleUrls'
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  loginForm: FormGroup; // Formulaire réactif
+  loginForm: FormGroup; 
   loginError: string = '';
   submitted: boolean = false;
 
-  constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     // Initialisation du formulaire avec validation
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -28,26 +32,30 @@ export class LoginComponent {
 
   // Méthode de connexion
   login() {
-    this.submitted = true; // Mettez à jour 'submitted' lors de la soumission
-
-    // Si le formulaire est invalide, on sort de la méthode
+    this.submitted = true;
+  
     if (this.loginForm.invalid) {
       return;
     }
-
-    // Récupération des valeurs du formulaire
+  
     const { email, password } = this.loginForm.value;
-
-    // Appel au service d'authentification
+  
     this.authService.login(email, password).subscribe({
       next: (response) => {
-        // Stocker le token dans le service
-        this.authService.storeToken(response.token); 
-        // Rediriger vers le tableau de bord après connexion
-        this.router.navigate(['/user']);
+        console.log('Token reçu :', response.user.role);  
+      const role=response.user.role       
+  
+        // Redirection en fonction du rôle
+        if (role === 'user') {
+          this.router.navigate(['/user']);
+        } else if (role === 'admin') {
+          this.router.navigate(['/admin']);
+        } else {
+          this.router.navigate(['/super-admin']);
+        }
       },
       error: (err) => {
-        this.loginError = 'Erreur de connexion : ' + (err.error.message || 'Erreur inconnue');
+        this.loginError = 'Erreur de connexion : ' + (err.error.message || 'Identifiants incorrects');
         console.error('Erreur de connexion', err);
       }
     });

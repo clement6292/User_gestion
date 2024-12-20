@@ -58,6 +58,10 @@
           Les mots de passe ne correspondent pas.
         </div>
       </div>
+
+      <div *ngIf="errorMessage" class="text-red-600 error-message">
+        {{ errorMessage }}
+      </div>
   
       <button 
         type="submit" 

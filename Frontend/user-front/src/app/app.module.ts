@@ -1,16 +1,16 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
+import { BrowserModule } from '@angular/platform-browser';
 import { JwtModule } from '@auth0/angular-jwt';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
-import { provideHttpClient, withInterceptorsFromDi, withFetch } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UserCreateComponent } from './user-create/user-create.component';
 import { UserDashboardComponent } from './user-dashboard/user-dashboard.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { SuperAdminDashboardComponent } from './super-admin-dashboard/super-admin-dashboard.component';
+import { provideHttpClient, withInterceptorsFromDi, withFetch } from '@angular/common/http';
 
 export function tokenGetter() {
   return localStorage.getItem('access_token');
@@ -28,22 +28,21 @@ export function tokenGetter() {
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule, // Assurez-vous que cela est bien configuré
+    AppRoutingModule,
     ReactiveFormsModule,
     FormsModule,
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,
-        allowedDomains: ['example.com'],
-        disallowedRoutes: ['http://example.com/examplebadroute/'],
+        allowedDomains: ['example.com'], // Remplacez par vos domaines
+        disallowedRoutes: ['http://example.com/examplebadroute/'], // Remplacez par vos routes
       },
     }),
   ],
   providers: [
-    provideClientHydration(),
     provideHttpClient(
       withInterceptorsFromDi(),
-      withFetch()
+      withFetch() // Ajoutez cette ligne pour activer les API fetch
     ),
   ],
   bootstrap: [AppComponent],

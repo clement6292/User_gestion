@@ -2,7 +2,6 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SuperAdminController;
-use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -13,9 +12,9 @@ Route::get('/user', function (Request $request) {
     return response()->json(["hello"=>User::all()]); 
  });
 // Routes publiques
-Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-// Route::get('/test', [UserController::class, 'index']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 // Routes protégées par Sanctum
 Route::middleware('auth:sanctum')->group(function () {
