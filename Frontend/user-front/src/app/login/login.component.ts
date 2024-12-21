@@ -42,10 +42,15 @@ export class LoginComponent {
   
     this.authService.login(email, password).subscribe({
       next: (response) => {
-        console.log('Token reçu :', response.user.role);  
-      const role=response.user.role       
-  
+        const token = response.token; // Récupérer le token
+        this.authService.storeToken(token); // Stocker le token
+        
+        // Stocker les données de l'utilisateur
+        this.authService.setUserData(response.user); 
+
         // Redirection en fonction du rôle
+        const role = this.authService.getUserRole(); // Récupérer le rôle de l'utilisateur
+          
         if (role === 'user') {
           this.router.navigate(['/user']);
         } else if (role === 'admin') {

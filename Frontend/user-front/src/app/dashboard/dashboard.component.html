@@ -1,0 +1,19 @@
+<div class="max-w-4xl mx-auto p-6 bg-gray-100 rounded-lg shadow-lg">
+  <h1 class="text-3xl font-bold">Tableau de Bord</h1>
+  <p class="mt-4">Bienvenue dans votre tableau de bord !</p>
+
+  <div class="mt-6" *ngIf="!isUser()">
+    <h2 class="text-xl">Liens de navigation</h2>
+    <ul class="list-disc pl-5">
+      <li *ngIf="isAdmin() || isSuperAdmin()">
+        <a routerLink="/user" class="text-blue-500 hover:underline">Tableau de bord Utilisateur</a>
+      </li>
+      <li *ngIf="isAdmin()">
+        <a routerLink="/admin" class="text-blue-500 hover:underline">Tableau de bord Administrateur</a>
+      </li>
+      <li *ngIf="isSuperAdmin()">
+        <a routerLink="/super-admin" class="text-blue-500 hover:underline">Tableau de bord Super Administrateur</a>
+      </li>
+    </ul>
+  </div>
+</div>

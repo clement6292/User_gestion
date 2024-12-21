@@ -1,1 +1,48 @@
-<p>user-create works!</p>
+<h2 class="text-3xl font-semibold text-center text-gray-800 mb-6">Page de création d'Utilisateurs</h2>
+<div class="flex items-center justify-center min-h-screen bg-gray-50">
+    <div class="max-w-md mx-auto p-8 bg-white rounded-lg shadow-lg">
+        <h1 class="text-3xl font-semibold text-center text-gray-800 mb-6">Créer un nouvel utilisateur</h1>
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+            <div class="mb-4">
+                <label for="name" class="block text-gray-700">Nom</label>
+                <input id="name" formControlName="name" class="border border-gray-300 rounded w-full p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <div *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched" class="text-red-500">Nom requis.</div>
+            </div>
+
+            <div class="mb-4">
+                <label for="email" class="block text-gray-700">Email</label>
+                <input id="email" formControlName="email" class="border border-gray-300 rounded w-full p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="text-red-500">Email requis et doit être valide.</div>
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="block text-gray-700">Mot de passe</label>
+                <input id="password" type="password" formControlName="password" class="border border-gray-300 rounded w-full p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="text-red-500">Mot de passe requis (min 6 caractères).</div>
+            </div>
+
+            <div class="mb-4">
+                <label for="password_confirmation" class="block text-gray-700">Confirmer le mot de passe</label>
+                <input id="password_confirmation" type="password" formControlName="password_confirmation" class="border border-gray-300 rounded w-full p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <div *ngIf="userForm.get('password_confirmation')?.invalid && userForm.get('password_confirmation')?.touched" class="text-red-500">La confirmation du mot de passe est requise.</div>
+                <div *ngIf="userForm.errors?.['passwordMismatch'] && userForm.get('password_confirmation')?.touched" class="text-red-500">Les mots de passe ne correspondent pas.</div>
+            </div>
+
+            <!-- Champ de rôle visible uniquement pour les super-admins -->
+            <div *ngIf="isSuperAdmin" class="mb-4">
+                <label for="role" class="block text-gray-700">Rôle</label>
+                <select id="role" formControlName="role" class="border border-gray-300 rounded w-full p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+
+            <!-- Champ caché pour fixer le rôle à "user" si l'utilisateur n'est pas super-admin -->
+            <input type="hidden" formControlName="role" value="user" *ngIf="!isSuperAdmin" />
+
+            <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition duration-200">Créer Utilisateur</button>
+
+            <div *ngIf="errorMessage" class="text-red-500 mt-4">{{ errorMessage }}</div>
+        </form>
+    </div>
+</div>

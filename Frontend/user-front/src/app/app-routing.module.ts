@@ -6,15 +6,19 @@ import { UserDashboardComponent } from './user-dashboard/user-dashboard.componen
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { SuperAdminDashboardComponent } from './super-admin-dashboard/super-admin-dashboard.component';
 import { AuthGuard } from './auth.guard';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { UserCreateComponent } from './user-create/user-create.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'user', component: UserDashboardComponent, canActivate: [AuthGuard], },
-  { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard], },
-  { path: 'super-admin', component: SuperAdminDashboardComponent, canActivate: [AuthGuard], },
-  { path: '', redirectTo: '/login', pathMatch: 'full' }, // Redirige vers la page de login par défaut
-  { path: '**', redirectTo: '/login' } // Route pour gérer les chemins non définis
+  { path: 'user', component: UserDashboardComponent, canActivate: [AuthGuard], data: { roles: ['user', 'admin', 'super-admin'] } },
+  { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard], data: { roles: ['admin', 'super-admin'] } },
+  { path: 'super-admin', component: SuperAdminDashboardComponent, canActivate: [AuthGuard], data: { roles: ['super-admin'] } },
+  { path: 'dashboard', component: DashboardComponent },
+  { path: 'user-create', component: UserCreateComponent }, 
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '**', redirectTo: '/login' }
 ];
 
 @NgModule({

@@ -10,17 +10,27 @@ import { User } from './user.model'; // Assurez-vous que ce fichier existe
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8000/api';
-  private  isAuthenticated = false;
+  private isAuthenticated = false;
+  private jwtHelper = new JwtHelperService();
+  private userRole: string = ''; // Initialisation par défaut
+  private userName: string = ''; // Initialisation par défaut
+  private userId: number | null = null; // Stockage de l'ID utilisateur
 
-  constructor(private http: HttpClient, ) {}
+  constructor(private http: HttpClient) {}
 
   // Méthode pour se connecter
   login(email: string, password: string): Observable<any> {
-    return this.http.post<{ token: string }>(`${this.apiUrl}/login`, { email, password })
-      .pipe(
-        tap(() => this.isAuthenticated = true), // Mettez à jour l'état d'authentification
-        catchError(this.handleError)
-      );
+    return this.http.post<{ token: string, user: { id: number, name: string, email: string, role: string } }>(
+      `${this.apiUrl}/login`,
+      { email, password }
+    ).pipe(
+      tap(response => {
+        this.storeToken(response.token); // Stockez le token
+        this.isAuthenticated = true; // Mettez à jour l'état d'authentification
+        this.setUserData(response.user); // Définir les données utilisateur à partir de l'objet user
+      }),
+      catchError(this.handleError)
+    );
   }
 
   // Méthode pour s'inscrire
@@ -34,36 +44,6 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/create_user`, { email, password, role })
       .pipe(catchError(this.handleError));
   }
-
-  // Vérifie si l'utilisateur est authentifié
-  // isAuthenticated(): boolean {
-  //   const token = this.getToken();
-  //   return token != null && !this.jwtHelper.isTokenExpired(token);
-  // }
-
-  // Récupère le rôle de l'utilisateur
-  // getRole(): string {
-  //   const token = this.getToken();
-  //   if (token) {
-  //     try {
-  //       const decodedToken = this.jwtHelper.decodeToken(token);
-  //       return decodedToken.role || '';
-  //     } catch (error) {
-  //       console.error('Erreur lors du décodage du token:', error);
-  //       return '';
-  //     }
-  //   }
-  //   return '';
-  // }
-
-  // Récupère les informations de l'utilisateur
-  // getUser(): any {
-  //   const token = this.getToken();
-  //   if (token) {
-  //     return this.jwtHelper.decodeToken(token);
-  //   }
-  //   return null;
-  // }
 
   // Déconnexion de l'utilisateur
   logout(): void {
@@ -83,6 +63,37 @@ export class AuthService {
   // Stocke le token dans le localStorage
   public storeToken(token: string): void {
     localStorage.setItem('token', token);
+  }
+
+  // Définit les données utilisateur à partir de l'objet user
+  public setUserData(user: { id: number; name: string; email: string; role: string }): void {
+    this.userId = user.id; // Stocke l'ID utilisateur
+    this.userRole = user.role; // Récupérer le rôle
+    this.userName = user.name; // Récupérer le nom
+  }
+
+  // Récupérer le rôle de l'utilisateur
+  getUserRole(): string {
+    return this.userRole;
+  }
+
+  // Récupérer le nom de l'utilisateur
+  getUserName(): string {
+    return this.userName;
+  }
+
+  // Récupérer l'ID de l'utilisateur
+  getUserId(): number | null {
+    return this.userId;
+  }
+
+  // Analyse le token JWT
+  private parseJwt(token: string): any {
+    const base64Url = token.split('.')[1];
+    const base64 = decodeURIComponent(atob(base64Url).split('').map(c => 
+      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+    return JSON.parse(base64);
   }
 
   // Gestion des erreurs
@@ -108,7 +119,4 @@ export class AuthService {
     return this.http.delete(`${this.apiUrl}/delete_user/${userId}`)
       .pipe(catchError(this.handleError));
   }
-
-  
- 
 }

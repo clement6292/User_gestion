@@ -13,6 +13,32 @@ class UserController extends Controller
         return response()->json($users);
     }
 
+    public function store(Request $request)
+    {
+
+        // Vérifiez si l'utilisateur a la permission de créer un super-admin
+        if ($request->role === 'super-admin' && !$this->userCanCreateSuperAdmin()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        // Validation des données
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+            'role' => 'required|string|in:user,admin,super-admin'
+        ]);
+
+        // Création de l'utilisateur
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password), // Hash du mot de passe
+            'role' => $request->role,
+        ]);
+
+        return response()->json($user, 201); // Retourner l'utilisateur créé
+    }
+
     public function show($id)
     {
         $user = User::findOrFail($id);
