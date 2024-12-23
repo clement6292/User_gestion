@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../user.service';
 import { User } from '../user.model';
-import { Router } from '@angular/router'; // Importation du Router
+import { Router } from '@angular/router';
+import { AlertService } from '../alert.service'; // Importer le service d'alerte
 
 @Component({
   selector: 'app-user-list',
@@ -11,11 +12,25 @@ import { Router } from '@angular/router'; // Importation du Router
 export class UserListComponent implements OnInit {
   users: User[] = [];
   errorMessage: string | null = null;
+  alertMessage: string = ''; // Pour stocker le message d'alerte
 
-  constructor(private userService: UserService, private router: Router) {} // Injection du Router
+  constructor(
+    private userService: UserService,
+    private router: Router,
+    private alertService: AlertService // Injection du service d'alerte
+  ) {}
 
   ngOnInit(): void {
     this.loadUsers();
+
+    // S'abonner aux messages d'alerte
+    this.alertService.alert$.subscribe(message => {
+      this.alertMessage = message;
+      // Effacer le message après quelques secondes
+      setTimeout(() => {
+        this.alertMessage = '';
+      }, 3000);
+    });
   }
 
   loadUsers(): void {

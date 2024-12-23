@@ -3,6 +3,7 @@ import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from
 import { UserService } from '../user.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service'; // Assurez-vous que ce service est importé
+import { AlertService } from '../alert.service';
 
 export function passwordMatchValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
@@ -29,8 +30,9 @@ export class UserCreateComponent implements OnInit {
     private fb: FormBuilder,
     private userService: UserService,
     private router: Router,
-    private authService: AuthService // Injection du service d'authentification
-  ) {
+    private authService: AuthService, // Injection du service d'authentification
+    private alertService: AlertService
+    ) {
     this.userForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -58,7 +60,9 @@ export class UserCreateComponent implements OnInit {
     if (this.userForm.valid) {
       this.userService.createUser(this.userForm.value).subscribe({
         next: () => {
-          this.router.navigate(['/dashboard']);
+          // Envoyer un message de succès
+          this.alertService.success('Utilisateur créé avec succès !');
+          this.router.navigate(['/user-list']); // Rediriger vers la liste des utilisateurs
         },
         error: (err) => {
           console.error('Erreur lors de la création de l’utilisateur', err);
