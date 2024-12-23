@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../user.service';
-import { User } from '../user.model'; // Modèle d'utilisateur
-import { HttpErrorResponse } from '@angular/common/http'; // Importer l'HttpErrorResponse
+import { User } from '../user.model';
+import { Router } from '@angular/router'; // Importation du Router
 
 @Component({
   selector: 'app-user-list',
@@ -12,21 +12,40 @@ export class UserListComponent implements OnInit {
   users: User[] = [];
   errorMessage: string | null = null;
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService, private router: Router) {} // Injection du Router
 
   ngOnInit(): void {
     this.loadUsers();
   }
 
   loadUsers(): void {
-    this.userService.getUsers().subscribe({
-      next: (data: User[]) => { // Spécifiez le type ici
+    this.userService.getUsers().subscribe(
+      (data: User[]) => {
         this.users = data;
       },
-      error: (err: HttpErrorResponse) => { // Assurez-vous que le type est spécifié
-        console.error('Erreur lors du chargement des utilisateurs', err);
-        this.errorMessage = 'Une erreur est survenue lors du chargement des utilisateurs.';
+      error => {
+        this.errorMessage = 'Erreur lors du chargement des utilisateurs : ' + error.message;
+        console.error('Erreur lors du chargement des utilisateurs', error);
       }
-    });
+    );
+  }
+
+  deleteUser(userId: string): void {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+      this.userService.deleteUser(userId).subscribe(
+        () => {
+          this.loadUsers(); // Recharge les utilisateurs après suppression
+        },
+        error => {
+          this.errorMessage = 'Erreur lors de la suppression de l\'utilisateur : ' + error.message;
+          console.error('Erreur lors de la suppression de l\'utilisateur', error);
+        }
+      );
+    }
+  }
+
+  editUser(user: User): void {
+    console.log('Modifier l utilisateur:', user);
+    this.router.navigate(['/user-edit', user.id]); // Redirection vers la vue d'édition
   }
 }

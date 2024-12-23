@@ -1,0 +1,30 @@
+<div class="container mx-auto mt-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Modifier l'Utilisateur</h1>
+  
+    <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+      <strong class="font-bold">Erreur:</strong>
+      <span class="block sm:inline">{{ errorMessage }}</span>
+    </div>
+  
+    <form (ngSubmit)="updateUser()" *ngIf="user">
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Nom</label>
+        <input [(ngModel)]="user.name" name="name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
+        <input [(ngModel)]="user.email" name="email" type="email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+      </div>
+  
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="role">Rôle</label>
+        <input [(ngModel)]="user.role" name="role" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+      </div>
+  
+      <div class="flex items-center justify-between">
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Mettre à Jour</button>
+        <button type="button" (click)="router.navigate(['/user-list'])" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Annuler</button>
+      </div>
+    </form>
+  </div>

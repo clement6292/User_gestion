@@ -14,31 +14,62 @@ export class UserService {
 
   // Méthode pour créer un nouvel utilisateur
   createUser(userData: User): Observable<any> {
-    const token = localStorage.getItem('token'); // Récupérez le token depuis le stockage local
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`, // Ajoutez le token dans les en-têtes
-      'Content-Type': 'application/json'
-    });
-
+    const token = this.getToken();
+    const headers = this.createHeaders(token);
     return this.http.post(`${this.apiUrl}/create_user`, userData, { headers })
-      .pipe(catchError(this.handleError)); // Gérer les erreurs
+      .pipe(catchError(this.handleError));
   }
 
   // Méthode pour obtenir la liste des utilisateurs
   getUsers(): Observable<User[]> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`, // Ajoutez le token dans les en-têtes
+    const token = this.getToken();
+    const headers = this.createHeaders(token);
+    return this.http.get<User[]>(`${this.apiUrl}/users`, { headers })
+      .pipe(catchError(this.handleError));
+  }
+
+  // Méthode pour modifier un utilisateur
+  updateUser(userId: string, userData: User): Observable<any> {
+    const token = this.getToken();
+    const headers = this.createHeaders(token);
+    return this.http.put(`${this.apiUrl}/users/${userId}`, userData, { headers })
+      .pipe(catchError(this.handleError));
+  }
+
+  // Méthode pour supprimer un utilisateur
+  deleteUser(userId: string): Observable<any> {
+    const token = this.getToken();
+    const headers = this.createHeaders(token);
+    return this.http.delete(`${this.apiUrl}/users/${userId}`, { headers })
+      .pipe(catchError(this.handleError));
+  }
+
+  // Méthode pour récupérer le token
+  private getToken(): string | null {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      console.log('Token retrieved:', token);
+      return token;
+    }
+    return null;
+  }
+
+  // Méthode pour créer les en-têtes HTTP
+  private createHeaders(token: string | null): HttpHeaders {
+    let headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
-
-    return this.http.get<User[]>(`${this.apiUrl}/users`, { headers })
-      .pipe(catchError(this.handleError)); // Gérer les erreurs
+    if (token) {
+      headers = headers.append('Authorization', `Bearer ${token}`);
+    } else {
+      console.warn('Token is missing');
+    }
+    return headers;
   }
 
   // Méthode pour gérer les erreurs
   private handleError(error: any): Observable<never> {
-    console.error('Une erreur est survenue:', error); // Logue l'erreur
-    return throwError(error); // Renvoie l'erreur
+    console.error('Une erreur est survenue:', error);
+    return throwError(error);
   }
 }

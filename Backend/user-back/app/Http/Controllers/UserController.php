@@ -46,16 +46,39 @@ class UserController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-        $user->update($request->all());
-        return response()->json($user);
+{
+    // Validation des données entrantes
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+        'role' => 'required|string|max:255',
+    ]);
+
+    // Trouver l'utilisateur par ID
+    $user = User::find($id);
+
+    // Vérifiez si l'utilisateur existe
+    if (!$user) {
+        return response()->json(['message' => 'Utilisateur non trouvé.'], 404);
     }
+
+    // Mettre à jour l'utilisateur
+    $user->name = $request->input('name');
+    $user->email = $request->input('email');
+    $user->role = $request->input('role');
+    $user->save();
+
+    return response()->json(['message' => 'Utilisateur mis à jour avec succès.', 'user' => $user], 200);
+}
 
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
-        return response()->json(['message' => 'User deleted successfully']);
+        $user = User::find($id);
+        if ($user) {
+            $user->delete();
+            return response()->json(['message' => 'Utilisateur supprimé avec succès.'], 200);
+        }
+
+        return response()->json(['message' => 'Utilisateur non trouvé.'], 404);
     }
 }
