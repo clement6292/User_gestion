@@ -12,6 +12,7 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
 import { SuperAdminDashboardComponent } from './super-admin-dashboard/super-admin-dashboard.component';
 import { provideHttpClient, withInterceptorsFromDi, withFetch } from '@angular/common/http';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { UserListComponent } from './user-list/user-list.component';
 
 export function tokenGetter() {
   return localStorage.getItem('access_token');
@@ -27,6 +28,8 @@ export function tokenGetter() {
     AdminDashboardComponent,
     SuperAdminDashboardComponent,
     DashboardComponent,
+    UserListComponent,
+    
   ],
   imports: [
     BrowserModule,

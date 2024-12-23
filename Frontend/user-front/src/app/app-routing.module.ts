@@ -8,6 +8,7 @@ import { SuperAdminDashboardComponent } from './super-admin-dashboard/super-admi
 import { AuthGuard } from './auth.guard';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { UserCreateComponent } from './user-create/user-create.component';
+import { UserListComponent } from './user-list/user-list.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -17,6 +18,7 @@ const routes: Routes = [
   { path: 'super-admin', component: SuperAdminDashboardComponent, canActivate: [AuthGuard], data: { roles: ['super-admin'] } },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'user-create', component: UserCreateComponent }, 
+  { path: 'user-list', component: UserListComponent }, 
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];

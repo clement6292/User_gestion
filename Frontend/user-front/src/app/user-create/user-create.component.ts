@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { UserService } from '../user.service';
 import { Router } from '@angular/router';
-import { AbstractControl, ValidatorFn } from '@angular/forms';
+import { AuthService } from '../auth.service'; // Assurez-vous que ce service est importé
 
 export function passwordMatchValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
@@ -28,9 +28,9 @@ export class UserCreateComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService // Injection du service d'authentification
   ) {
-    // Initialisation du formulaire avec les contrôles nécessaires
     this.userForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -42,17 +42,16 @@ export class UserCreateComponent implements OnInit {
 
   ngOnInit() {
     this.isSuperAdmin = this.checkIfSuperAdmin();
+    console.log('Utilisateur est super admin:', this.isSuperAdmin);
     
-    // Si l'utilisateur n'est pas super-admin, le rôle reste fixé à "user"
+    // Fixe le rôle à "user" par défaut pour les administrateurs
     if (!this.isSuperAdmin) {
       this.userForm.get('role')?.setValue('user');
     }
   }
 
   checkIfSuperAdmin(): boolean {
-    // Remplacez ceci par la logique réelle pour vérifier le rôle de l'utilisateur connecté
-    // return this.authService.currentUser.role === 'super-admin';
-    return false; // Pour les tests, retournez false pour simuler un admin
+    return this.authService.currentUserValue?.role === 'super-admin'; // Utilisez le getter public
   }
 
   onSubmit() {
@@ -63,14 +62,7 @@ export class UserCreateComponent implements OnInit {
         },
         error: (err) => {
           console.error('Erreur lors de la création de l’utilisateur', err);
-          if (err.status === 422) {
-            this.errorMessage = 'Veuillez vérifier les informations saisies.';
-            if (err.error.errors) {
-              this.errorMessage += '\n' + Object.values(err.error.errors).flat().join('\n');
-            }
-          } else {
-            this.errorMessage = err.error.message || 'Une erreur est survenue.';
-          }
+          this.errorMessage = 'Une erreur est survenue.';
         }
       });
     } else {

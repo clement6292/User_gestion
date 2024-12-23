@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/users', [UserController::class, 'index']);
     Route::post('/create_user', [UserController::class, 'store']); // Ajoutez cette ligne
     Route::get('/admin/dashboard', [AdminController::class, 'index']);
     Route::get('/super-admin/dashboard', [SuperAdminController::class, 'index']);

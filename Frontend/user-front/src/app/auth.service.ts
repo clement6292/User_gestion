@@ -12,9 +12,7 @@ export class AuthService {
   private apiUrl = 'http://localhost:8000/api';
   private isAuthenticated = false;
   private jwtHelper = new JwtHelperService();
-  private userRole: string = ''; // Initialisation par défaut
-  private userName: string = ''; // Initialisation par défaut
-  private userId: number | null = null; // Stockage de l'ID utilisateur
+  private currentUser: { id: number; name: string; email: string; role: string } | null = null;
 
   constructor(private http: HttpClient) {}
 
@@ -49,6 +47,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     this.isAuthenticated = false;
+    this.currentUser = null; // Réinitialiser l'utilisateur courant
   }
 
   isUserAuthenticated(): boolean {
@@ -67,24 +66,27 @@ export class AuthService {
 
   // Définit les données utilisateur à partir de l'objet user
   public setUserData(user: { id: number; name: string; email: string; role: string }): void {
-    this.userId = user.id; // Stocke l'ID utilisateur
-    this.userRole = user.role; // Récupérer le rôle
-    this.userName = user.name; // Récupérer le nom
+    this.currentUser = user; // Stocke les données utilisateur
+  }
+
+  // Récupérer l'utilisateur courant
+  get currentUserValue(): { id: number; name: string; email: string; role: string } | null {
+    return this.currentUser;
   }
 
   // Récupérer le rôle de l'utilisateur
   getUserRole(): string {
-    return this.userRole;
+    return this.currentUser?.role || ''; // Renvoie le rôle ou une chaîne vide par défaut
   }
 
   // Récupérer le nom de l'utilisateur
   getUserName(): string {
-    return this.userName;
+    return this.currentUser?.name || ''; // Renvoie le nom ou une chaîne vide par défaut
   }
 
   // Récupérer l'ID de l'utilisateur
   getUserId(): number | null {
-    return this.userId;
+    return this.currentUser?.id || null; // Renvoie l'ID ou null par défaut
   }
 
   // Analyse le token JWT
@@ -96,10 +98,10 @@ export class AuthService {
     return JSON.parse(base64);
   }
 
-  // Gestion des erreurs
+  // Méthode pour gérer les erreurs
   private handleError(error: any): Observable<never> {
-    console.error('Une erreur est survenue:', error);
-    return throwError(error); // Assurez-vous de renvoyer l'erreur
+    console.error('Une erreur est survenue:', error); // Log de l'erreur
+    return throwError(error); // Renvoie l'erreur
   }
 
   // Récupérer tous les utilisateurs
@@ -107,6 +109,7 @@ export class AuthService {
     return this.http.get<User[]>(`${this.apiUrl}/users`)
       .pipe(catchError(this.handleError));
   }
+  
 
   // Promouvoir un utilisateur
   promoteUser(userId: string): Observable<any> {
